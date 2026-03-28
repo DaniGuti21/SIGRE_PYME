@@ -1,33 +1,55 @@
-.contenedor-login {
-    min-height: 100vh;
+html {
+    font-size: 14px;
+}
+
+body.fondo-general {
+    background: #f4f7fb;
+    color: #1f2937;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.barra-superior {
+    background: linear-gradient(90deg, #1e66f5, #0d6efd);
+}
+
+.texto-bienvenida {
+    font-weight: 600;
+    color: #eaf2ff !important;
+}
+
+.contenedor-principal {
+    padding-top: 20px;
+    padding-bottom: 30px;
+}
+
+.pagina-contenido {
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+.card-bonita {
+    border: none;
+    border-radius: 16px;
+    background-color: #ffffff;
+}
+
+.pantalla-auth {
+    min-height: calc(100vh - 140px);
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #eaf2ff, #f8f9fb);
-    padding: 20px;
+    background: linear-gradient(135deg, #edf3ff, #f8fbff);
+    border-radius: 18px;
+    padding: 40px 20px;
 }
 
-.caja-login {
-    background-color: #ffffff;
+.tarjeta-auth {
     width: 100%;
-    max-width: 390px;
-    padding: 30px 25px;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-
-    .caja-login h2 {
-        text-align: center;
-        margin-bottom: 6px;
-        color: #2c3e50;
-        font-weight: 700;
-    }
-
-.subtitulo-login {
-    text-align: center;
-    color: #6c757d;
-    margin-bottom: 20px;
-    font-size: 14px;
+    max-width: 430px;
+    background-color: #ffffff;
+    border-radius: 18px;
+    padding: 35px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .login-activo {
@@ -38,35 +60,118 @@
     border-top: 6px solid #dc3545;
 }
 
-.caja-login input {
-    border-radius: 8px;
-    border: 1px solid #dcdcdc;
-    padding: 10px;
+.encabezado-auth {
+    text-align: center;
+    margin-bottom: 25px;
 }
 
-    .caja-login input:focus {
-        border-color: #86b7fe;
-        box-shadow: 0 0 5px rgba(13, 110, 253, 0.2);
+    .encabezado-auth h2 {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #1f3b64;
     }
 
-.caja-login button {
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: 500;
+    .encabezado-auth p {
+        color: #6b7280;
+        margin-bottom: 0;
+    }
+
+.input-auth {
+    height: 46px;
+    border-radius: 10px;
+    border: 1px solid #d8dee9;
+    background-color: #f9fbff;
 }
 
-.enlace-login {
+    .input-auth:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+        background-color: #ffffff;
+    }
+
+.boton-auth {
+    height: 46px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.enlace-auth {
     text-align: center;
-    margin-top: 16px;
+    margin-top: 18px;
     font-size: 14px;
 }
 
-    .enlace-login a {
+    .enlace-auth a {
         text-decoration: none;
         font-weight: 600;
         margin-left: 4px;
     }
 
-        .enlace-login a:hover {
+        .enlace-auth a:hover {
             text-decoration: underline;
+        }
+
+.mensaje-error {
+    text-align: center;
+    color: #dc3545;
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.buscador-bonito {
+    border-radius: 10px;
+    background-color: #f8fbff;
+    border: 1px solid #d8dee9;
+    height: 46px;
+}
+
+.tabla-bonita {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+    .tabla-bonita thead th {
+        background-color: #eaf2ff;
+        color: #1f3b64;
+        border-bottom: none;
+    }
+
+    .tabla-bonita tbody tr:hover {
+        background-color: #f8fbff;
+    }
+
+.seccion-info {
+    line-height: 1.8;
+    border-radius: 16px;
+}
+
+.caja-contacto {
+    background-color: #f0df78;
+    width: 100%;
+    max-width: 460px;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+    .caja-contacto h2 {
+        margin-bottom: 20px;
+        font-weight: 700;
+        color: #1f1f1f;
+    }
+
+    .caja-contacto .form-label {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .caja-contacto .form-control {
+        border: 2px solid #707070;
+        border-radius: 8px;
+        box-shadow: none;
+    }
+
+        .caja-contacto .form-control:focus {
+            border-color: #000;
+            box-shadow: none;
         }

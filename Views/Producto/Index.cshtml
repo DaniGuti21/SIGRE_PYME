@@ -6,52 +6,70 @@
     var esAdmin = Context.Session.GetString("EsAdmin") == "true";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Productos</h2>
+<div class="pagina-contenido">
+    <div class="card card-bonita shadow-sm p-4">
 
-    @if (esAdmin)
-    {
-        <p>
-            <a asp-action="Create" class="btn btn-primary">Agregar producto</a>
-        </p>
-    }
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Catálogo de Productos</h2>
 
-    <div class="mb-3">
-        <input type="text" id="buscarTexto" class="form-control" placeholder="Buscar producto..." />
-    </div>
-
-    <table class="table table-bordered table-hover" id="tablaProductos">
-        <thead class="table-light">
-            <tr>
-                <th>SKU</th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                @if (esAdmin)
-                {
-                    <th>Acciones</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+            @if (esAdmin)
             {
-                <tr>
-                    <td>@item.SKU</td>
-                    <td>@item.Nombre</td>
-                    <td>@item.Precio</td>
-                    <td>@item.StockActual</td>
-                    @if (esAdmin)
-                    {
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-warning btn-sm">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-danger btn-sm">Eliminar</a>
-                        </td>
-                    }
-                </tr>
+                <a asp-action="Create" class="btn btn-primary">Agregar producto</a>
             }
-        </tbody>
-    </table>
+        </div>
+
+        <input type="text" id="buscarTexto" class="form-control mb-3" placeholder="Buscar producto..." />
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>SKU</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        @if (esAdmin)
+                        {
+                            <th>Acciones</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody id="tablaProductos">
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                                {
+                                    <img src="~/img/productos/@item.ImagenUrl" width="60" height="60" style="border-radius:8px; object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <span>Sin imagen</span>
+                                }
+                            </td>
+
+                            <td>@item.SKU</td>
+                            <td>@item.Nombre</td>
+                            <td>₡ @item.Precio.ToString("0.00")</td>
+                            <td>@item.StockActual</td>
+
+                            @if (esAdmin)
+                            {
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-warning btn-sm">Editar</a>
+                                    <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-danger btn-sm">Eliminar</a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 </div>
 
 @section Scripts {
@@ -59,6 +77,7 @@
         $(document).ready(function () {
             $("#buscarTexto").keyup(function () {
                 var texto = $(this).val();
+                var esAdmin = '@esAdmin'.toLowerCase() === 'true';
 
                 $.ajax({
                     url: '/Producto/Buscar',
@@ -66,24 +85,32 @@
                     data: { texto: texto },
                     success: function (data) {
                         var filas = '';
-                        var esAdmin = '@esAdmin'.toLowerCase() === 'true';
 
                         $.each(data, function (i, item) {
                             filas += '<tr>';
+
+                            if (item.imagenUrl && item.imagenUrl !== '') {
+                                filas += '<td><img src="/img/productos/' + item.imagenUrl + '" width="60" height="60" style="border-radius:8px; object-fit:cover;" /></td>';
+                            } else {
+                                filas += '<td>Sin imagen</td>';
+                            }
+
                             filas += '<td>' + item.sku + '</td>';
                             filas += '<td>' + item.nombre + '</td>';
-                            filas += '<td>' + item.precio + '</td>';
+                            filas += '<td>₡ ' + parseFloat(item.precio).toFixed(2) + '</td>';
                             filas += '<td>' + item.stockActual + '</td>';
 
                             if (esAdmin) {
-                                filas += '<td><a href="/Producto/Edit/' + item.productoId + '" class="btn btn-warning btn-sm">Editar</a> ';
-                                filas += '<a href="/Producto/Delete/' + item.productoId + '" class="btn btn-danger btn-sm">Eliminar</a></td>';
+                                filas += '<td>';
+                                filas += '<a href="/Producto/Edit/' + item.productoId + '" class="btn btn-warning btn-sm">Editar</a> ';
+                                filas += '<a href="/Producto/Delete/' + item.productoId + '" class="btn btn-danger btn-sm">Eliminar</a>';
+                                filas += '</td>';
                             }
 
                             filas += '</tr>';
                         });
 
-                        $("#tablaProductos tbody").html(filas);
+                        $("#tablaProductos").html(filas);
                     }
                 });
             });

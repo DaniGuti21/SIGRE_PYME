@@ -7,28 +7,36 @@
 <div class="container mt-4">
     <h2>Crear producto</h2>
 
-    <form asp-action="Create" method="post">
+    <!-- 🔥 IMPORTANTE: enctype -->
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+
         <div class="mb-3">
-            <label asp-for="SKU" class="form-label"></label>
+            <label>SKU</label>
             <input asp-for="SKU" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <label asp-for="Nombre" class="form-label"></label>
+            <label>Nombre</label>
             <input asp-for="Nombre" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <label asp-for="Precio" class="form-label"></label>
-            <input asp-for="Precio" class="form-control" />
+            <label>Precio</label>
+            <input asp-for="Precio" class="form-control" step="0.01" />
         </div>
 
         <div class="mb-3">
-            <label asp-for="StockActual" class="form-label"></label>
+            <label>Stock</label>
             <input asp-for="StockActual" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Importar imagen</label>
+            <input type="file" name="imagenArchivo" class="form-control" accept="image/*" />
         </div>
 
         <button type="submit" class="btn btn-success">Guardar</button>
         <a asp-action="Index" class="btn btn-secondary">Volver</a>
+
     </form>
 </div>

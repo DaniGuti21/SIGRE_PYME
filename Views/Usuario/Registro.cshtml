@@ -4,33 +4,35 @@
     ViewData["Title"] = "Registro";
 }
 
-<div class="contenedor-login">
-    <div class="caja-login registro-activo">
-
-        <h2>Crear cuenta</h2>
-        <p class="subtitulo-login">Regístrate para usar el sistema</p>
+<div class="pantalla-auth">
+    <div class="tarjeta-auth registro-activo">
+        <div class="encabezado-auth">
+            <h2>Crear cuenta</h2>
+            <p>Regístrate para ingresar al sistema</p>
+        </div>
 
         <form method="post">
             <div class="mb-3">
-                <input name="NombreUsuario" type="text" class="form-control" placeholder="Nombre de usuario" required />
+                <label class="form-label">Usuario</label>
+                <input name="NombreUsuario" type="text" class="form-control input-auth" placeholder="Cree su usuario" required />
             </div>
 
             <div class="mb-3">
-                <input name="Contrasena" type="password" class="form-control" placeholder="Contraseña" required />
+                <label class="form-label">Contraseña</label>
+                <input name="Contrasena" type="password" class="form-control input-auth" placeholder="Cree su contraseña" required />
             </div>
 
-            <button class="btn btn-success w-100">Registrarse</button>
+            <button class="btn btn-danger boton-auth w-100">Registrarse</button>
         </form>
 
         @if (ViewBag.Error != null)
         {
-            <p class="text-danger text-center mt-3">@ViewBag.Error</p>
+            <p class="mensaje-error mt-3">@ViewBag.Error</p>
         }
 
-        <div class="enlace-login">
+        <div class="enlace-auth">
             <span>¿Ya tienes cuenta?</span>
             <a href="/Usuario/Login">Iniciar sesión</a>
         </div>
-
     </div>
 </div>

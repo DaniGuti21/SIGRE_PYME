@@ -24,7 +24,6 @@ namespace SIGRE_PYME.Controllers
             var movimientos = _context.MovimientosInventario.ToList();
             return View(movimientos);
         }
-
         public IActionResult Entrada()
         {
             ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
@@ -36,22 +35,30 @@ namespace SIGRE_PYME.Controllers
         {
             var producto = _context.Productos.Find(movimiento.ProductoId);
 
-            if (producto != null)
+            if (producto == null)
             {
-                producto.StockActual += movimiento.Cantidad;
-
-                movimiento.TipoMovimiento = "Entrada";
-                movimiento.Fecha = DateTime.Now;
-                movimiento.UsuarioId = 0;
-
-                _context.MovimientosInventario.Add(movimiento);
-                _context.SaveChanges();
-
-                return RedirectToAction("Index");
+                ViewBag.Error = "El producto no existe";
+                ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
+                return View(movimiento);
             }
 
-            ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
-            return View(movimiento);
+            var usuarioId = HttpContext.Session.GetString("UsuarioId");
+
+            if (usuarioId == null)
+            {
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            producto.StockActual += movimiento.Cantidad;
+
+            movimiento.TipoMovimiento = "Entrada";
+            movimiento.Fecha = DateTime.Now;
+            movimiento.UsuarioId = int.Parse(usuarioId);
+
+            _context.MovimientosInventario.Add(movimiento);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         public IActionResult Salida()
@@ -65,29 +72,36 @@ namespace SIGRE_PYME.Controllers
         {
             var producto = _context.Productos.Find(movimiento.ProductoId);
 
-            if (producto != null)
+            if (producto == null)
             {
-                if (producto.StockActual < movimiento.Cantidad)
-                {
-                    ViewBag.Error = "No hay suficiente stock";
-                    ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
-                    return View(movimiento);
-                }
+                ViewBag.Error = "El producto no existe";
+                ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
+                return View(movimiento);
+            }
+            var usuarioId = HttpContext.Session.GetString("UsuarioId");
 
-                producto.StockActual -= movimiento.Cantidad;
-
-                movimiento.TipoMovimiento = "Salida";
-                movimiento.Fecha = DateTime.Now;
-                movimiento.UsuarioId = 0;
-
-                _context.MovimientosInventario.Add(movimiento);
-                _context.SaveChanges();
-
-                return RedirectToAction("Index");
+            if (usuarioId == null)
+            {
+                return RedirectToAction("Login", "Usuario");
             }
 
-            ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
-            return View(movimiento);
+            if (producto.StockActual < movimiento.Cantidad)
+            {
+                ViewBag.Error = "No hay suficiente stock";
+                ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
+                return View(movimiento);
+            }
+
+            producto.StockActual -= movimiento.Cantidad;
+
+            movimiento.TipoMovimiento = "Salida";
+            movimiento.Fecha = DateTime.Now;
+            movimiento.UsuarioId = int.Parse(usuarioId);
+
+            _context.MovimientosInventario.Add(movimiento);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
     }
 }

@@ -2,6 +2,9 @@
 using SIGRE_PYME.Data;
 using SIGRE_PYME.Models;
 using SIGRE_PYME.Filters;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.IO;
 using System.Linq;
 
 namespace SIGRE_PYME.Controllers
@@ -10,10 +13,12 @@ namespace SIGRE_PYME.Controllers
     public class ProductoController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductoController(ApplicationDbContext context)
+        public ProductoController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IActionResult Index()
@@ -30,10 +35,34 @@ namespace SIGRE_PYME.Controllers
 
         [HttpPost]
         [SoloAdmin]
-        public IActionResult Create(Producto producto)
+        public IActionResult Create(Producto producto, IFormFile imagenArchivo)
         {
             if (ModelState.IsValid)
             {
+                if (imagenArchivo != null && imagenArchivo.Length > 0)
+                {
+                    string carpetaDestino = Path.Combine(_webHostEnvironment.WebRootPath, "img", "productos");
+
+                    if (!Directory.Exists(carpetaDestino))
+                    {
+                        Directory.CreateDirectory(carpetaDestino);
+                    }
+
+                    string nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(imagenArchivo.FileName);
+                    string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+
+                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    {
+                        imagenArchivo.CopyTo(stream);
+                    }
+
+                    producto.ImagenUrl = nombreArchivo;
+                }
+                else
+                {
+                    producto.ImagenUrl = "";
+                }
+
                 _context.Productos.Add(producto);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
@@ -57,11 +86,43 @@ namespace SIGRE_PYME.Controllers
 
         [HttpPost]
         [SoloAdmin]
-        public IActionResult Edit(Producto producto)
+        public IActionResult Edit(Producto producto, IFormFile imagenArchivo)
         {
+            var productoExistente = _context.Productos.Find(producto.ProductoId);
+
+            if (productoExistente == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Productos.Update(producto);
+                productoExistente.SKU = producto.SKU;
+                productoExistente.Nombre = producto.Nombre;
+                productoExistente.Precio = producto.Precio;
+                productoExistente.StockActual = producto.StockActual;
+
+                if (imagenArchivo != null && imagenArchivo.Length > 0)
+                {
+                    string carpetaDestino = Path.Combine(_webHostEnvironment.WebRootPath, "img", "productos");
+
+                    if (!Directory.Exists(carpetaDestino))
+                    {
+                        Directory.CreateDirectory(carpetaDestino);
+                    }
+
+                    string nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(imagenArchivo.FileName);
+                    string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+
+                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    {
+                        imagenArchivo.CopyTo(stream);
+                    }
+
+                    productoExistente.ImagenUrl = nombreArchivo;
+                }
+
+                _context.Update(productoExistente);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -100,31 +161,16 @@ namespace SIGRE_PYME.Controllers
         [HttpGet]
         public JsonResult Buscar(string texto)
         {
-            if (string.IsNullOrEmpty(texto))
-            {
-                var todos = _context.Productos
-                    .Select(p => new
-                    {
-                        p.ProductoId,
-                        p.SKU,
-                        p.Nombre,
-                        p.Precio,
-                        p.StockActual
-                    })
-                    .ToList();
-
-                return Json(todos);
-            }
-
             var productos = _context.Productos
-                .Where(p => p.Nombre.Contains(texto) || p.SKU.Contains(texto))
+                .Where(p => string.IsNullOrEmpty(texto) || p.Nombre.Contains(texto) || p.SKU.Contains(texto))
                 .Select(p => new
                 {
                     p.ProductoId,
                     p.SKU,
                     p.Nombre,
                     p.Precio,
-                    p.StockActual
+                    p.StockActual,
+                    p.ImagenUrl
                 })
                 .ToList();
 
