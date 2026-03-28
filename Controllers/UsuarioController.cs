@@ -14,9 +14,13 @@ namespace SIGRE_PYME.Controllers
             _context = context;
         }
 
-        // 🔐 INICIAR SESIÓN
         public IActionResult Login()
         {
+            if (HttpContext.Session.GetString("UsuarioId") != null)
+            {
+                return RedirectToAction("Index", "Producto");
+            }
+
             return View();
         }
 
@@ -24,29 +28,65 @@ namespace SIGRE_PYME.Controllers
         public IActionResult Login(Usuario user)
         {
             var usuario = _context.Usuarios
-                .FirstOrDefault(u => u.Email == user.Email && u.Contrasena == user.Contrasena);
+                .FirstOrDefault(u => u.NombreUsuario == user.NombreUsuario && u.Contrasena == user.Contrasena);
 
             if (usuario != null)
             {
-                return RedirectToAction("Index", "Home");
+                HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
+                HttpContext.Session.SetString("NombreUsuario", usuario.NombreUsuario);
+
+                if (usuario.NombreUsuario == "admin")
+                {
+                    HttpContext.Session.SetString("EsAdmin", "true");
+                }
+                else
+                {
+                    HttpContext.Session.SetString("EsAdmin", "false");
+                }
+
+                return RedirectToAction("Index", "Producto");
             }
 
-            ViewBag.Error = "Correo o contraseña incorrectos";
+            ViewBag.Error = "Usuario o contraseña incorrectos";
             return View();
         }
 
-        // 📝 REGISTRO
         public IActionResult Registro()
         {
+            if (HttpContext.Session.GetString("UsuarioId") != null)
+            {
+                return RedirectToAction("Index", "Producto");
+            }
+
             return View();
         }
 
         [HttpPost]
         public IActionResult Registro(Usuario user)
         {
+            if (string.IsNullOrEmpty(user.NombreUsuario) || string.IsNullOrEmpty(user.Contrasena))
+            {
+                ViewBag.Error = "Debe completar todos los campos";
+                return View(user);
+            }
+
+            var existeUsuario = _context.Usuarios.Any(u => u.NombreUsuario == user.NombreUsuario);
+
+            if (existeUsuario)
+            {
+                ViewBag.Error = "Ese nombre de usuario ya existe";
+                return View(user);
+            }
+
             _context.Usuarios.Add(user);
             _context.SaveChanges();
 
+            return RedirectToAction("Login");
+        }
+
+        public IActionResult CerrarSesion()
+        {
+            HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
     }

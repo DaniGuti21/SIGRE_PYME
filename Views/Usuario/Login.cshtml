@@ -1,22 +1,36 @@
 ﻿@model SIGRE_PYME.Models.Usuario
 
-<div class="container mt-5">
-    <div class="col-md-4 mx-auto">
-        <div class="card p-4 shadow">
-            <h3 class="text-center">Iniciar Sesión</h3>
+@{
+    ViewData["Title"] = "Login";
+}
 
-            <form method="post">
-                <input name="Email" class="form-control mb-3" placeholder="Correo" />
-                <input name="Contrasena" type="password" class="form-control mb-3" placeholder="Contraseña" />
+<div class="contenedor-login">
+    <div class="caja-login login-activo">
 
-                <button class="btn btn-primary w-100">Ingresar</button>
-            </form>
+        <h2>Bienvenido</h2>
+        <p class="subtitulo-login">Inicia sesión para continuar</p>
 
-            <p class="text-danger">@ViewBag.Error</p>
-
-            <div class="text-center mt-3">
-                <a href="/Usuario/Registro">Crear cuenta</a>
+        <form method="post">
+            <div class="mb-3">
+                <input name="NombreUsuario" type="text" class="form-control" placeholder="Nombre de usuario" required />
             </div>
+
+            <div class="mb-3">
+                <input name="Contrasena" type="password" class="form-control" placeholder="Contraseña" required />
+            </div>
+
+            <button class="btn btn-primary w-100">Ingresar</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <p class="text-danger text-center mt-3">@ViewBag.Error</p>
+        }
+
+        <div class="enlace-login">
+            <span>¿No tienes cuenta?</span>
+            <a href="/Usuario/Registro">Crear cuenta</a>
         </div>
+
     </div>
 </div>

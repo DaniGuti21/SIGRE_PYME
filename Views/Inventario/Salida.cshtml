@@ -1,0 +1,27 @@
+﻿@model SIGRE_PYME.Models.MovimientoInventario
+
+@{
+    ViewData["Title"] = "Salida de Inventario";
+}
+
+<h2>Salida de Inventario</h2>
+
+<form asp-action="Salida" method="post">
+    <div class="mb-3">
+        <label>Producto</label>
+        <select asp-for="ProductoId" asp-items="ViewBag.Productos" class="form-control"></select>
+    </div>
+
+    <div class="mb-3">
+        <label>Cantidad</label>
+        <input asp-for="Cantidad" class="form-control" />
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    <button type="submit" class="btn btn-danger">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>

@@ -1,0 +1,36 @@
+﻿@model SIGRE_PYME.Models.Producto
+
+@{
+    ViewData["Title"] = "Editar producto";
+}
+
+<div class="container mt-4">
+    <h2>Editar producto</h2>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="ProductoId" />
+
+        <div class="mb-3">
+            <label asp-for="SKU" class="form-label"></label>
+            <input asp-for="SKU" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Precio" class="form-label"></label>
+            <input asp-for="Precio" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StockActual" class="form-label"></label>
+            <input asp-for="StockActual" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </form>
+</div>

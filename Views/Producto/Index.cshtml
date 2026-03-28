@@ -1,0 +1,92 @@
+﻿@model IEnumerable<SIGRE_PYME.Models.Producto>
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Productos";
+    var esAdmin = Context.Session.GetString("EsAdmin") == "true";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Productos</h2>
+
+    @if (esAdmin)
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-primary">Agregar producto</a>
+        </p>
+    }
+
+    <div class="mb-3">
+        <input type="text" id="buscarTexto" class="form-control" placeholder="Buscar producto..." />
+    </div>
+
+    <table class="table table-bordered table-hover" id="tablaProductos">
+        <thead class="table-light">
+            <tr>
+                <th>SKU</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                @if (esAdmin)
+                {
+                    <th>Acciones</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.SKU</td>
+                    <td>@item.Nombre</td>
+                    <td>@item.Precio</td>
+                    <td>@item.StockActual</td>
+                    @if (esAdmin)
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ProductoId" class="btn btn-warning btn-sm">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.ProductoId" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#buscarTexto").keyup(function () {
+                var texto = $(this).val();
+
+                $.ajax({
+                    url: '/Producto/Buscar',
+                    type: 'GET',
+                    data: { texto: texto },
+                    success: function (data) {
+                        var filas = '';
+                        var esAdmin = '@esAdmin'.toLowerCase() === 'true';
+
+                        $.each(data, function (i, item) {
+                            filas += '<tr>';
+                            filas += '<td>' + item.sku + '</td>';
+                            filas += '<td>' + item.nombre + '</td>';
+                            filas += '<td>' + item.precio + '</td>';
+                            filas += '<td>' + item.stockActual + '</td>';
+
+                            if (esAdmin) {
+                                filas += '<td><a href="/Producto/Edit/' + item.productoId + '" class="btn btn-warning btn-sm">Editar</a> ';
+                                filas += '<a href="/Producto/Delete/' + item.productoId + '" class="btn btn-danger btn-sm">Eliminar</a></td>';
+                            }
+
+                            filas += '</tr>';
+                        });
+
+                        $("#tablaProductos tbody").html(filas);
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,34 @@
+﻿@model SIGRE_PYME.Models.Producto
+
+@{
+    ViewData["Title"] = "Crear producto";
+}
+
+<div class="container mt-4">
+    <h2>Crear producto</h2>
+
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="SKU" class="form-label"></label>
+            <input asp-for="SKU" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Precio" class="form-label"></label>
+            <input asp-for="Precio" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StockActual" class="form-label"></label>
+            <input asp-for="StockActual" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+    </form>
+</div>

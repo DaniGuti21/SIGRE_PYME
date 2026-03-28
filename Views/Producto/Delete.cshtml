@@ -1,0 +1,21 @@
+﻿@model SIGRE_PYME.Models.Producto
+
+@{
+    ViewData["Title"] = "Eliminar producto";
+}
+
+<div class="container mt-4">
+    <h2>Eliminar producto</h2>
+
+    <p>¿Seguro que desea eliminar este producto?</p>
+
+    <div class="mb-3">
+        <strong>@Model.Nombre</strong>
+    </div>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="ProductoId" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>>
