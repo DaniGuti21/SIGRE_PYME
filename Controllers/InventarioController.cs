@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using SIGRE_PYME.Data;
 using SIGRE_PYME.Models;
 using SIGRE_PYME.Filters;
@@ -21,9 +22,14 @@ namespace SIGRE_PYME.Controllers
 
         public IActionResult Index()
         {
-            var movimientos = _context.MovimientosInventario.ToList();
+            var movimientos = _context.MovimientosInventario
+                .Include(m => m.Producto)
+                .OrderByDescending(m => m.Fecha)
+                .ToList();
+
             return View(movimientos);
         }
+
         public IActionResult Entrada()
         {
             ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
@@ -78,6 +84,7 @@ namespace SIGRE_PYME.Controllers
                 ViewBag.Productos = new SelectList(_context.Productos.ToList(), "ProductoId", "Nombre");
                 return View(movimiento);
             }
+
             var usuarioId = HttpContext.Session.GetString("UsuarioId");
 
             if (usuarioId == null)

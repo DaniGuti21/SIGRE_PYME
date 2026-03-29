@@ -21,6 +21,18 @@
         </div>
 
         <div class="mb-3">
+            <label>Categoría</label>
+            <select asp-for="Categoria" class="form-control">
+                <option value="">Seleccione una categoría</option>
+                <option value="Computadoras">Computadoras</option>
+                <option value="Celulares">Celulares</option>
+                <option value="Tablets">Tablets</option>
+                <option value="Audífonos">Audífonos</option>
+                <option value="Consolas">Consolas</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
             <label>Precio</label>
             <input asp-for="Precio" class="form-control" step="0.01" />
         </div>

@@ -1,4 +1,6 @@
-﻿@{
+﻿@model SIGRE_PYME.Models.ContactoMensaje
+
+@{
     ViewData["Title"] = "Contacto";
 }
 
@@ -6,25 +8,39 @@
     <div class="caja-contacto">
         <h2>Contáctanos</h2>
 
-        <form>
+        @if (ViewBag.Mensaje != null)
+        {
+            <div class="alert alert-success">
+                @ViewBag.Mensaje
+            </div>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.Error
+            </div>
+        }
+
+        <form asp-action="Contacto" method="post">
             <div class="mb-3">
-                <label class="form-label">Nombre completo</label>
-                <input type="text" class="form-control" placeholder="Ingrese su nombre completo" />
+                <label asp-for="NombreCompleto" class="form-label">Nombre completo</label>
+                <input asp-for="NombreCompleto" class="form-control" placeholder="Ingrese su nombre completo" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Número de teléfono</label>
-                <input type="text" class="form-control" placeholder="Ingrese su número" />
+                <label asp-for="Telefono" class="form-label">Número de teléfono</label>
+                <input asp-for="Telefono" class="form-control" placeholder="Ingrese su número" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" placeholder="Ingrese su correo" />
+                <label asp-for="CorreoElectronico" class="form-label">Correo electrónico</label>
+                <input asp-for="CorreoElectronico" class="form-control" placeholder="Ingrese su correo" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">¿Cómo podemos ayudarle?</label>
-                <textarea class="form-control" rows="4" placeholder="Escriba su mensaje aquí"></textarea>
+                <label asp-for="Mensaje" class="form-label">¿Cómo podemos ayudarle?</label>
+                <textarea asp-for="Mensaje" class="form-control" rows="4" placeholder="Escriba su mensaje aquí"></textarea>
             </div>
 
             <button type="submit" class="btn btn-dark">Enviar</button>

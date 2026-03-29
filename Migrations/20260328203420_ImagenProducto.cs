@@ -4,10 +4,8 @@
 
 namespace SIGRE_PYME.Migrations
 {
-    /// <inheritdoc />
     public partial class ImagenProducto : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(

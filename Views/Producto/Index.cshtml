@@ -7,10 +7,10 @@
 }
 
 <div class="pagina-contenido">
-    <div class="card card-bonita shadow-sm p-4">
+    <div class="card shadow-sm p-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Catálogo de Productos</h2>
+        <div class="d-flex justify-content-between mb-3">
+            <h2>Productos</h2>
 
             @if (esAdmin)
             {
@@ -18,15 +18,14 @@
             }
         </div>
 
-        <input type="text" id="buscarTexto" class="form-control mb-3" placeholder="Buscar producto..." />
-
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Imagen</th>
                         <th>SKU</th>
                         <th>Nombre</th>
+                        <th>Categoría</th>
                         <th>Precio</th>
                         <th>Stock</th>
                         @if (esAdmin)
@@ -35,25 +34,24 @@
                         }
                     </tr>
                 </thead>
-
-                <tbody id="tablaProductos">
+                <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
                             <td>
                                 @if (!string.IsNullOrEmpty(item.ImagenUrl))
                                 {
-                                    <img src="~/img/productos/@item.ImagenUrl" width="60" height="60" style="border-radius:8px; object-fit:cover;" />
+                                    <img src="~/img/productos/@item.ImagenUrl" width="60" height="60" />
                                 }
                                 else
                                 {
-                                    <span>Sin imagen</span>
+                                    <span>No tiene</span>
                                 }
                             </td>
-
                             <td>@item.SKU</td>
                             <td>@item.Nombre</td>
-                            <td>₡ @item.Precio.ToString("0.00")</td>
+                            <td>@item.Categoria</td>
+                            <td>@item.Precio</td>
                             <td>@item.StockActual</td>
 
                             @if (esAdmin)
@@ -71,49 +69,3 @@
 
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $("#buscarTexto").keyup(function () {
-                var texto = $(this).val();
-                var esAdmin = '@esAdmin'.toLowerCase() === 'true';
-
-                $.ajax({
-                    url: '/Producto/Buscar',
-                    type: 'GET',
-                    data: { texto: texto },
-                    success: function (data) {
-                        var filas = '';
-
-                        $.each(data, function (i, item) {
-                            filas += '<tr>';
-
-                            if (item.imagenUrl && item.imagenUrl !== '') {
-                                filas += '<td><img src="/img/productos/' + item.imagenUrl + '" width="60" height="60" style="border-radius:8px; object-fit:cover;" /></td>';
-                            } else {
-                                filas += '<td>Sin imagen</td>';
-                            }
-
-                            filas += '<td>' + item.sku + '</td>';
-                            filas += '<td>' + item.nombre + '</td>';
-                            filas += '<td>₡ ' + parseFloat(item.precio).toFixed(2) + '</td>';
-                            filas += '<td>' + item.stockActual + '</td>';
-
-                            if (esAdmin) {
-                                filas += '<td>';
-                                filas += '<a href="/Producto/Edit/' + item.productoId + '" class="btn btn-warning btn-sm">Editar</a> ';
-                                filas += '<a href="/Producto/Delete/' + item.productoId + '" class="btn btn-danger btn-sm">Eliminar</a>';
-                                filas += '</td>';
-                            }
-
-                            filas += '</tr>';
-                        });
-
-                        $("#tablaProductos").html(filas);
-                    }
-                });
-            });
-        });
-    </script>
-}
