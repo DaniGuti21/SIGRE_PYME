@@ -1,0 +1,37 @@
+﻿@model SIGRE_PYME.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="pagina-contenido">
+    <div class="card shadow-sm p-4">
+        <h2>Dashboard</h2>
+
+        <p><strong>Total de ventas:</strong> @Model.TotalVentas.ToString("0.00")</p>
+        <p><strong>Producto más vendido:</strong> @Model.ProductoMasVendido</p>
+        <p><strong>Cantidad vendida:</strong> @Model.CantidadVendida</p>
+
+        <h4 class="mt-4">Productos con stock bajo</h4>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ProductosStockBajo)
+                {
+                    <tr>
+                        <td>@item.Nombre</td>
+                        <td>@item.Categoria</td>
+                        <td>@item.StockActual</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

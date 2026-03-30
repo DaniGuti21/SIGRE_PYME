@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Compra exitosa";
+}
+
+<div class="pagina-contenido">
+    <div class="card shadow-sm p-5 text-center">
+        <h2 class="text-success mb-4">¡Gracias por su compra!</h2>
+
+        <p class="mb-3">
+            Su pedido ha sido procesado correctamente.
+        </p>
+
+        <p class="mb-4">
+            Puede imprimir su factura, descargarla o cerrar sesión.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a asp-controller="Pedido" asp-action="VerFactura" class="btn btn-primary">
+                Imprimir factura
+            </a>
+
+            <a asp-controller="Pedido" asp-action="DescargarFactura" class="btn btn-success">
+                Descargar factura
+            </a>
+
+            <a asp-controller="Usuario" asp-action="CerrarSesion" class="btn btn-danger">
+                Cerrar sesión
+            </a>
+        </div>
+    </div>
+</div>

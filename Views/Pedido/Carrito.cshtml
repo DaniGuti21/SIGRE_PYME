@@ -1,0 +1,86 @@
+﻿@model List<SIGRE_PYME.Models.CarritoItem>
+
+@{
+    ViewData["Title"] = "Carrito";
+    decimal total = Model.Sum(x => x.Precio * x.Cantidad);
+}
+
+<div class="pagina-contenido">
+    <div class="card shadow-sm p-4">
+        <h2>Carrito</h2>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <p>No hay productos en el carrito.</p>
+            <a asp-controller="Producto" asp-action="Index" class="btn btn-primary">Ir a productos</a>
+        }
+        else
+        {
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                                {
+                                    <img src="~/img/productos/@item.ImagenUrl" width="60" height="60" />
+                                }
+                            </td>
+                            <td>@item.Nombre</td>
+                            <td>@item.Precio.ToString("0.00")</td>
+                            <td>
+                                <form asp-action="ActualizarCantidad" method="post" class="d-flex">
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <input type="number" name="cantidad" value="@item.Cantidad" min="1" class="form-control me-2" style="width:90px;" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Actualizar</button>
+                                </form>
+                            </td>
+                            <td>@((item.Precio * item.Cantidad).ToString("0.00"))</td>
+                            <td>
+                                <form asp-action="QuitarDelCarrito" method="post">
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Quitar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="mt-3 mb-3">
+                <div class="alert alert-info">
+                    ¿Deseas agregar algo más al carrito? Puedes volver a la lista de productos.
+                    Si ya terminaste, presiona el botón de confirmar compra.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <a asp-controller="Producto" asp-action="Index" class="btn btn-outline-primary">
+                    Seguir comprando
+                </a>
+            </div>
+
+            <h4>Total: @total.ToString("0.00")</h4>
+
+            <form asp-action="ConfirmarPedido" method="post">
+                <button type="submit" class="btn btn-success">Confirmar compra y descargar factura</button>
+            </form>
+        }
+    </div>
+</div>

@@ -13,6 +13,7 @@ namespace SIGRE_PYME.Models
         public string TipoMovimiento { get; set; }
         public int Cantidad { get; set; }
         public DateTime Fecha { get; set; }
+
         public Producto Producto { get; set; }
         public Usuario Usuario { get; set; }
     }

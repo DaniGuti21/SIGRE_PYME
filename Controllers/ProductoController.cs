@@ -21,10 +21,30 @@ namespace SIGRE_PYME.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string categoria, decimal? precioMin, decimal? precioMax)
         {
-            var productos = _context.Productos.ToList();
-            return View(productos);
+            var productos = _context.Productos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(categoria))
+            {
+                productos = productos.Where(p => p.Categoria == categoria);
+            }
+
+            if (precioMin.HasValue)
+            {
+                productos = productos.Where(p => p.Precio >= precioMin.Value);
+            }
+
+            if (precioMax.HasValue)
+            {
+                productos = productos.Where(p => p.Precio <= precioMax.Value);
+            }
+
+            ViewBag.Categoria = categoria;
+            ViewBag.PrecioMin = precioMin;
+            ViewBag.PrecioMax = precioMax;
+
+            return View(productos.ToList());
         }
 
         [SoloAdmin]
@@ -65,7 +85,6 @@ namespace SIGRE_PYME.Controllers
 
                 _context.Productos.Add(producto);
                 _context.SaveChanges();
-                TempData["Mensaje"] = "Producto agregado correctamente.";
                 return RedirectToAction("Index");
             }
 
@@ -126,7 +145,6 @@ namespace SIGRE_PYME.Controllers
 
                 _context.Update(productoExistente);
                 _context.SaveChanges();
-                TempData["Mensaje"] = "Producto actualizado correctamente.";
                 return RedirectToAction("Index");
             }
 
@@ -154,13 +172,10 @@ namespace SIGRE_PYME.Controllers
 
             if (producto == null)
             {
-                TempData["Error"] = "El producto no existe.";
                 return RedirectToAction("Index");
             }
 
-            bool tieneMovimientos = _context.MovimientosInventario.Any(m => m.ProductoId == id);
-
-            if (tieneMovimientos)
+            if (_context.MovimientosInventario.Any(m => m.ProductoId == id))
             {
                 TempData["Error"] = "No se puede eliminar este producto porque tiene movimientos de inventario asociados.";
                 return RedirectToAction("Index");
@@ -169,42 +184,7 @@ namespace SIGRE_PYME.Controllers
             _context.Productos.Remove(producto);
             _context.SaveChanges();
 
-            TempData["Mensaje"] = "Producto eliminado correctamente.";
             return RedirectToAction("Index");
-        }
-
-        [HttpGet]
-        public JsonResult Buscar(string texto, string categoria)
-        {
-            var productos = _context.Productos.AsQueryable();
-
-            if (!string.IsNullOrEmpty(texto))
-            {
-                productos = productos.Where(p =>
-                    p.Nombre.Contains(texto) ||
-                    p.SKU.Contains(texto) ||
-                    p.Categoria.Contains(texto));
-            }
-
-            if (!string.IsNullOrEmpty(categoria))
-            {
-                productos = productos.Where(p => p.Categoria == categoria);
-            }
-
-            var resultado = productos
-                .Select(p => new
-                {
-                    p.ProductoId,
-                    p.SKU,
-                    p.Nombre,
-                    p.Categoria,
-                    p.Precio,
-                    p.StockActual,
-                    p.ImagenUrl
-                })
-                .ToList();
-
-            return Json(resultado);
         }
     }
 }

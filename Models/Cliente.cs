@@ -1,10 +1,19 @@
-﻿namespace SIGRE_PYME.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SIGRE_PYME.Models
 {
     public class Cliente
     {
+        [Key]
         public int ClienteId { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
-        public string Telefono { get; set; }
+
+        [Required]
+        public string Nombre { get; set; } = "";
+
+        [Required]
+        public string Email { get; set; } = "";
+
+        [Required]
+        public string Telefono { get; set; } = "";
     }
 }

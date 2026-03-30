@@ -35,7 +35,7 @@ namespace SIGRE_PYME.Controllers
                 HttpContext.Session.SetString("UsuarioId", usuario.Id.ToString());
                 HttpContext.Session.SetString("NombreUsuario", usuario.NombreUsuario);
 
-                if (usuario.NombreUsuario == "admin")
+                if (usuario.NombreUsuario.Trim().ToLower() == "admin")
                 {
                     HttpContext.Session.SetString("EsAdmin", "true");
                 }

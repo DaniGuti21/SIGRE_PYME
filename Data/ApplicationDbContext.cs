@@ -15,5 +15,7 @@ namespace SIGRE_PYME.Data
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<MovimientoInventario> MovimientosInventario { get; set; }
         public DbSet<ContactoMensaje> ContactoMensajes { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<PedidoDetalle> PedidoDetalles { get; set; }
     }
 }

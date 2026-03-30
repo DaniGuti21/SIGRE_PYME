@@ -46,6 +46,12 @@
                             {
                                 <a class="nav-link text-white px-3" asp-controller="Inventario" asp-action="Index">Inventario</a>
                                 <a class="nav-link text-white px-3" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                                <a class="nav-link text-white px-3" asp-controller="Reporte" asp-action="Dashboard">Dashboard</a>
+                                <a class="nav-link text-white px-3" asp-controller="Reporte" asp-action="HistorialProducto">Reportes</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link text-white px-3" asp-controller="Pedido" asp-action="Carrito">Carrito</a>
                             }
 
                             <span class="nav-link texto-bienvenida px-3">Bienvenido, @nombreUsuario</span>
