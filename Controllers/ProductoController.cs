@@ -23,28 +23,28 @@ namespace SIGRE_PYME.Controllers
 
         public IActionResult Index(string categoria, decimal? precioMin, decimal? precioMax)
         {
-            var productos = _context.Productos.AsQueryable();
+            var listaProductos = _context.Productos.AsQueryable();
 
             if (!string.IsNullOrEmpty(categoria))
             {
-                productos = productos.Where(p => p.Categoria == categoria);
+                listaProductos = listaProductos.Where(p => p.Categoria == categoria);
             }
 
             if (precioMin.HasValue)
             {
-                productos = productos.Where(p => p.Precio >= precioMin.Value);
+                listaProductos = listaProductos.Where(p => p.Precio >= precioMin.Value);
             }
 
             if (precioMax.HasValue)
             {
-                productos = productos.Where(p => p.Precio <= precioMax.Value);
+                listaProductos = listaProductos.Where(p => p.Precio <= precioMax.Value);
             }
 
             ViewBag.Categoria = categoria;
             ViewBag.PrecioMin = precioMin;
             ViewBag.PrecioMax = precioMax;
 
-            return View(productos.ToList());
+            return View(listaProductos.ToList());
         }
 
         [SoloAdmin]
@@ -61,17 +61,17 @@ namespace SIGRE_PYME.Controllers
             {
                 if (imagenArchivo != null && imagenArchivo.Length > 0)
                 {
-                    string carpetaDestino = Path.Combine(_webHostEnvironment.WebRootPath, "img", "productos");
+                    string carpeta = Path.Combine(_webHostEnvironment.WebRootPath, "img", "productos");
 
-                    if (!Directory.Exists(carpetaDestino))
+                    if (!Directory.Exists(carpeta))
                     {
-                        Directory.CreateDirectory(carpetaDestino);
+                        Directory.CreateDirectory(carpeta);
                     }
 
                     string nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(imagenArchivo.FileName);
-                    string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+                    string ruta = Path.Combine(carpeta, nombreArchivo);
 
-                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    using (var stream = new FileStream(ruta, FileMode.Create))
                     {
                         imagenArchivo.CopyTo(stream);
                     }
@@ -85,6 +85,7 @@ namespace SIGRE_PYME.Controllers
 
                 _context.Productos.Add(producto);
                 _context.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -108,43 +109,44 @@ namespace SIGRE_PYME.Controllers
         [SoloAdmin]
         public IActionResult Edit(Producto producto, IFormFile imagenArchivo)
         {
-            var productoExistente = _context.Productos.Find(producto.ProductoId);
+            var productoBD = _context.Productos.Find(producto.ProductoId);
 
-            if (productoExistente == null)
+            if (productoBD == null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                productoExistente.SKU = producto.SKU;
-                productoExistente.Nombre = producto.Nombre;
-                productoExistente.Categoria = producto.Categoria;
-                productoExistente.Precio = producto.Precio;
-                productoExistente.StockActual = producto.StockActual;
+                productoBD.SKU = producto.SKU;
+                productoBD.Nombre = producto.Nombre;
+                productoBD.Categoria = producto.Categoria;
+                productoBD.Precio = producto.Precio;
+                productoBD.StockActual = producto.StockActual;
 
                 if (imagenArchivo != null && imagenArchivo.Length > 0)
                 {
-                    string carpetaDestino = Path.Combine(_webHostEnvironment.WebRootPath, "img", "productos");
+                    string carpeta = Path.Combine(_webHostEnvironment.WebRootPath, "img", "productos");
 
-                    if (!Directory.Exists(carpetaDestino))
+                    if (!Directory.Exists(carpeta))
                     {
-                        Directory.CreateDirectory(carpetaDestino);
+                        Directory.CreateDirectory(carpeta);
                     }
 
                     string nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(imagenArchivo.FileName);
-                    string rutaCompleta = Path.Combine(carpetaDestino, nombreArchivo);
+                    string ruta = Path.Combine(carpeta, nombreArchivo);
 
-                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
+                    using (var stream = new FileStream(ruta, FileMode.Create))
                     {
                         imagenArchivo.CopyTo(stream);
                     }
 
-                    productoExistente.ImagenUrl = nombreArchivo;
+                    productoBD.ImagenUrl = nombreArchivo;
                 }
 
-                _context.Update(productoExistente);
+                _context.Productos.Update(productoBD);
                 _context.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -175,9 +177,11 @@ namespace SIGRE_PYME.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (_context.MovimientosInventario.Any(m => m.ProductoId == id))
+            bool tieneMovimientos = _context.MovimientosInventario.Any(m => m.ProductoId == id);
+
+            if (tieneMovimientos)
             {
-                TempData["Error"] = "No se puede eliminar este producto porque tiene movimientos de inventario asociados.";
+                TempData["Error"] = "No se puede eliminar este producto porque tiene movimientos registrados.";
                 return RedirectToAction("Index");
             }
 

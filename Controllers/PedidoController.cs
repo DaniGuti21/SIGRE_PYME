@@ -29,12 +29,13 @@ namespace SIGRE_PYME.Controllers
                 return new List<CarritoItem>();
             }
 
-            return JsonSerializer.Deserialize<List<CarritoItem>>(carritoJson) ?? new List<CarritoItem>();
+            return JsonSerializer.Deserialize<List<CarritoItem>>(carritoJson);
         }
 
         private void GuardarCarrito(List<CarritoItem> carrito)
         {
-            HttpContext.Session.SetString("Carrito", JsonSerializer.Serialize(carrito));
+            var carritoJson = JsonSerializer.Serialize(carrito);
+            HttpContext.Session.SetString("Carrito", carritoJson);
         }
 
         [HttpPost]
@@ -44,35 +45,36 @@ namespace SIGRE_PYME.Controllers
 
             if (producto == null)
             {
+                TempData["Error"] = "Producto no encontrado.";
                 return RedirectToAction("Index", "Producto");
             }
 
             if (producto.StockActual <= 0)
             {
-                TempData["Error"] = "Ese producto no tiene stock disponible.";
+                TempData["Error"] = "No hay stock disponible para este producto.";
                 return RedirectToAction("Index", "Producto");
             }
 
             var carrito = ObtenerCarrito();
-            var itemExistente = carrito.FirstOrDefault(c => c.ProductoId == productoId);
+            var item = carrito.FirstOrDefault(x => x.ProductoId == productoId);
 
-            if (itemExistente != null)
+            if (item != null)
             {
-                if (itemExistente.Cantidad < producto.StockActual)
+                if (item.Cantidad < producto.StockActual)
                 {
-                    itemExistente.Cantidad++;
+                    item.Cantidad = item.Cantidad + 1;
                 }
             }
             else
             {
-                carrito.Add(new CarritoItem
-                {
-                    ProductoId = producto.ProductoId,
-                    Nombre = producto.Nombre,
-                    ImagenUrl = producto.ImagenUrl,
-                    Precio = producto.Precio,
-                    Cantidad = 1
-                });
+                CarritoItem nuevo = new CarritoItem();
+                nuevo.ProductoId = producto.ProductoId;
+                nuevo.Nombre = producto.Nombre;
+                nuevo.ImagenUrl = producto.ImagenUrl;
+                nuevo.Precio = producto.Precio;
+                nuevo.Cantidad = 1;
+
+                carrito.Add(nuevo);
             }
 
             GuardarCarrito(carrito);
@@ -90,7 +92,7 @@ namespace SIGRE_PYME.Controllers
         public IActionResult ActualizarCantidad(int productoId, int cantidad)
         {
             var carrito = ObtenerCarrito();
-            var item = carrito.FirstOrDefault(c => c.ProductoId == productoId);
+            var item = carrito.FirstOrDefault(x => x.ProductoId == productoId);
             var producto = _context.Productos.Find(productoId);
 
             if (item != null && producto != null)
@@ -109,6 +111,7 @@ namespace SIGRE_PYME.Controllers
             }
 
             GuardarCarrito(carrito);
+
             return RedirectToAction("Carrito");
         }
 
@@ -116,7 +119,7 @@ namespace SIGRE_PYME.Controllers
         public IActionResult QuitarDelCarrito(int productoId)
         {
             var carrito = ObtenerCarrito();
-            var item = carrito.FirstOrDefault(c => c.ProductoId == productoId);
+            var item = carrito.FirstOrDefault(x => x.ProductoId == productoId);
 
             if (item != null)
             {
@@ -124,6 +127,7 @@ namespace SIGRE_PYME.Controllers
             }
 
             GuardarCarrito(carrito);
+
             return RedirectToAction("Carrito");
         }
 
@@ -149,90 +153,93 @@ namespace SIGRE_PYME.Controllers
 
             foreach (var item in carrito)
             {
-                var productoValidacion = _context.Productos.Find(item.ProductoId);
-
-                if (productoValidacion == null)
-                {
-                    TempData["Error"] = "Uno de los productos ya no existe.";
-                    return RedirectToAction("Carrito");
-                }
-
-                if (productoValidacion.StockActual < item.Cantidad)
-                {
-                    TempData["Error"] = "No hay suficiente stock para " + productoValidacion.Nombre;
-                    return RedirectToAction("Carrito");
-                }
-            }
-
-            decimal total = carrito.Sum(x => x.Precio * x.Cantidad);
-
-            var pedido = new Pedido
-            {
-                UsuarioId = usuarioId,
-                Fecha = DateTime.Now,
-                Total = total,
-                Estado = "Confirmado"
-            };
-
-            _context.Pedidos.Add(pedido);
-            _context.SaveChanges();
-
-            var contenido = new StringBuilder();
-            contenido.AppendLine("FACTURA SIGRE_PYME");
-            contenido.AppendLine("====================================");
-            contenido.AppendLine("Pedido #: " + pedido.PedidoId);
-            contenido.AppendLine("Fecha: " + pedido.Fecha);
-            contenido.AppendLine("Usuario ID: " + usuarioId);
-            contenido.AppendLine("====================================");
-            contenido.AppendLine("");
-
-            foreach (var item in carrito)
-            {
                 var producto = _context.Productos.Find(item.ProductoId);
 
-                var detalle = new PedidoDetalle
+                if (producto == null)
                 {
-                    PedidoId = pedido.PedidoId,
-                    ProductoId = item.ProductoId,
-                    Cantidad = item.Cantidad,
-                    PrecioUnitario = item.Precio,
-                    Subtotal = item.Precio * item.Cantidad
-                };
+                    TempData["Error"] = "Uno de los productos no existe.";
+                    return RedirectToAction("Carrito");
+                }
 
-                _context.PedidoDetalles.Add(detalle);
-
-                producto.StockActual -= item.Cantidad;
-
-                var movimiento = new MovimientoInventario
+                if (producto.StockActual < item.Cantidad)
                 {
-                    ProductoId = item.ProductoId,
-                    UsuarioId = usuarioId,
-                    TipoMovimiento = "Salida",
-                    Cantidad = item.Cantidad,
-                    Fecha = DateTime.Now
-                };
-
-                _context.MovimientosInventario.Add(movimiento);
-
-                contenido.AppendLine("Producto: " + item.Nombre);
-                contenido.AppendLine("Cantidad: " + item.Cantidad);
-                contenido.AppendLine("Precio unitario: " + item.Precio.ToString("0.00"));
-                contenido.AppendLine("Subtotal: " + (item.Precio * item.Cantidad).ToString("0.00"));
-                contenido.AppendLine("------------------------------------");
+                    TempData["Error"] = "No hay suficiente stock para " + producto.Nombre;
+                    return RedirectToAction("Carrito");
+                }
             }
 
-            _context.SaveChanges();
+            try
+            {
+                decimal total = 0;
 
-            contenido.AppendLine("TOTAL: " + total.ToString("0.00"));
-            contenido.AppendLine("====================================");
-            contenido.AppendLine("Gracias por su compra.");
+                foreach (var item in carrito)
+                {
+                    total = total + (item.Precio * item.Cantidad);
+                }
 
-            HttpContext.Session.SetString("FacturaTexto", contenido.ToString());
-            HttpContext.Session.SetString("FacturaNombre", "Factura_Pedido_" + pedido.PedidoId + ".txt");
+                Pedido pedido = new Pedido();
+                pedido.UsuarioId = usuarioId;
+                pedido.Fecha = DateTime.Now;
+                pedido.Total = total;
+                pedido.Estado = "Confirmado";
 
-            HttpContext.Session.Remove("Carrito");
+                _context.Pedidos.Add(pedido);
+                _context.SaveChanges();
 
-            return RedirectToAction("CompraExitosa");
+                StringBuilder factura = new StringBuilder();
+                factura.AppendLine("FACTURA");
+                factura.AppendLine("Pedido: " + pedido.PedidoId);
+                factura.AppendLine("Fecha: " + pedido.Fecha);
+                factura.AppendLine("--------------------------------");
+
+                foreach (var item in carrito)
+                {
+                    var producto = _context.Productos.Find(item.ProductoId);
+
+                    PedidoDetalle detalle = new PedidoDetalle();
+                    detalle.PedidoId = pedido.PedidoId;
+                    detalle.ProductoId = item.ProductoId;
+                    detalle.Cantidad = item.Cantidad;
+                    detalle.PrecioUnitario = item.Precio;
+                    detalle.Subtotal = item.Precio * item.Cantidad;
+
+                    _context.PedidoDetalles.Add(detalle);
+
+                    producto.StockActual = producto.StockActual - item.Cantidad;
+
+                    MovimientoInventario movimiento = new MovimientoInventario();
+                    movimiento.ProductoId = item.ProductoId;
+                    movimiento.UsuarioId = usuarioId;
+                    movimiento.TipoMovimiento = "Salida";
+                    movimiento.Cantidad = item.Cantidad;
+                    movimiento.Fecha = DateTime.Now;
+
+                    _context.MovimientosInventario.Add(movimiento);
+
+                    factura.AppendLine("Producto: " + item.Nombre);
+                    factura.AppendLine("Cantidad: " + item.Cantidad);
+                    factura.AppendLine("Precio: " + item.Precio.ToString("0.00"));
+                    factura.AppendLine("Subtotal: " + detalle.Subtotal.ToString("0.00"));
+                    factura.AppendLine("--------------------------------");
+                }
+
+                _context.SaveChanges();
+
+                factura.AppendLine("Total: " + total.ToString("0.00"));
+                factura.AppendLine("Gracias por su compra.");
+
+                HttpContext.Session.SetString("FacturaTexto", factura.ToString());
+                HttpContext.Session.SetString("FacturaNombre", "Factura_Pedido_" + pedido.PedidoId + ".txt");
+
+                HttpContext.Session.Remove("Carrito");
+
+                return RedirectToAction("CompraExitosa");
+            }
+            catch
+            {
+                TempData["Error"] = "Ocurrió un error al confirmar el pedido.";
+                return RedirectToAction("Carrito");
+            }
         }
 
         public IActionResult CompraExitosa()
@@ -263,7 +270,7 @@ namespace SIGRE_PYME.Controllers
                 return RedirectToAction("Carrito");
             }
 
-            var bytes = Encoding.UTF8.GetBytes(facturaTexto);
+            byte[] bytes = Encoding.UTF8.GetBytes(facturaTexto);
             return File(bytes, "text/plain", facturaNombre);
         }
     }
