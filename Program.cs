@@ -3,7 +3,7 @@ using SIGRE_PYME.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Conexión a la base de datos
+// Conexiï¿½n a la base de datos
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
