@@ -5,7 +5,7 @@
 }
 
 <div class="pagina-contenido">
-    <div class="caja-contacto">
+    <div class="contacto-simple">
         <h2>Contáctanos</h2>
 
         @if (ViewBag.Mensaje != null)
@@ -25,25 +25,25 @@
         <form asp-action="Contacto" method="post">
             <div class="mb-3">
                 <label asp-for="NombreCompleto" class="form-label">Nombre completo</label>
-                <input asp-for="NombreCompleto" class="form-control" placeholder="Ingrese su nombre completo" />
+                <input asp-for="NombreCompleto" class="form-control" placeholder="Escriba su nombre" />
             </div>
 
             <div class="mb-3">
-                <label asp-for="Telefono" class="form-label">Número de teléfono</label>
-                <input asp-for="Telefono" class="form-control" placeholder="Ingrese su número" />
+                <label asp-for="Telefono" class="form-label">Teléfono</label>
+                <input asp-for="Telefono" class="form-control" placeholder="Escriba su teléfono" />
             </div>
 
             <div class="mb-3">
-                <label asp-for="CorreoElectronico" class="form-label">Correo electrónico</label>
-                <input asp-for="CorreoElectronico" class="form-control" placeholder="Ingrese su correo" />
+                <label asp-for="CorreoElectronico" class="form-label">Correo</label>
+                <input asp-for="CorreoElectronico" class="form-control" placeholder="Escriba su correo" />
             </div>
 
             <div class="mb-3">
-                <label asp-for="Mensaje" class="form-label">¿Cómo podemos ayudarle?</label>
-                <textarea asp-for="Mensaje" class="form-control" rows="4" placeholder="Escriba su mensaje aquí"></textarea>
+                <label asp-for="Mensaje" class="form-label">Mensaje</label>
+                <textarea asp-for="Mensaje" class="form-control" rows="4" placeholder="Escriba su mensaje"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-dark">Enviar</button>
+            <button type="submit" class="btn btn-enviar-simple">Enviar</button>
         </form>
     </div>
 </div>

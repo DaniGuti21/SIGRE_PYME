@@ -7,55 +7,61 @@
 <div class="container mt-4">
     <h2>Editar producto</h2>
 
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
     <form asp-action="Edit" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="ProductoId" />
+        <input type="hidden" name="ImagenActual" value="@Model.ImagenUrl" />
 
         <div class="mb-3">
-            <label>SKU</label>
+            <label class="form-label">SKU</label>
             <input asp-for="SKU" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <label>Nombre</label>
+            <label class="form-label">Nombre</label>
             <input asp-for="Nombre" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <label>Categoría</label>
+            <label class="form-label">Categoría</label>
             <select asp-for="Categoria" class="form-control">
                 <option value="">Seleccione una categoría</option>
-                <option>Computadoras</option>
-                <option>Mouse</option>
-                <option>Teclados</option>
-                <option>Celulares</option>
-                <option>Tablets</option>
-                <option>Audífonos</option>
-                <option>Consolas</option>
+                <option value="Computadoras">Computadoras</option>
+                <option value="Mouse">Mouse</option>
+                <option value="Teclados">Teclados</option>
+                <option value="Celulares">Celulares</option>
+                <option value="Tablets">Tablets</option>
+                <option value="Audífonos">Audífonos</option>
+                <option value="Consolas">Consolas</option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label>Precio</label>
-            <input asp-for="Precio" class="form-control" step="0.01" />
+            <label class="form-label">Precio</label>
+            <input asp-for="Precio" type="number" step="0.01" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <label>Stock</label>
-            <input asp-for="StockActual" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label>Importar nueva imagen</label>
-            <input type="file" name="imagenArchivo" class="form-control" accept="image/*" />
+            <label class="form-label">Stock</label>
+            <input asp-for="StockActual" type="number" class="form-control" />
         </div>
 
         @if (!string.IsNullOrEmpty(Model.ImagenUrl))
         {
             <div class="mb-3">
-                <label>Imagen actual</label><br />
-                <img src="~/img/productos/@Model.ImagenUrl" width="100" style="border-radius:8px;" />
+                <label class="form-label">Imagen actual</label><br />
+                <img src="~/img/productos/@Model.ImagenUrl" style="width:100px;height:100px;object-fit:cover;border:1px solid #ccc;border-radius:8px;" />
             </div>
         }
+
+        <div class="mb-3">
+            <label class="form-label">Importar nueva imagen</label>
+            <input type="file" name="imagenArchivo" class="form-control" accept="image/*" />
+        </div>
 
         <button type="submit" class="btn btn-primary">Actualizar</button>
         <a asp-action="Index" class="btn btn-secondary">Volver</a>

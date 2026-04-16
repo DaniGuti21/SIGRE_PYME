@@ -23,9 +23,13 @@
             <div class="alert alert-danger">@TempData["Error"]</div>
         }
 
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success">@TempData["Mensaje"]</div>
+        }
+
         <div class="mb-4">
             <form method="get" asp-action="Index">
-
                 <div class="mb-3 d-flex flex-wrap gap-2">
                     <a asp-action="Index" class="btn btn-outline-primary btn-sm">Todos</a>
                     <a asp-action="Index" asp-route-categoria="Computadoras" class="btn btn-outline-primary btn-sm">Computadoras</a>
@@ -50,7 +54,6 @@
                         <a asp-action="Index" class="btn btn-light">Limpiar</a>
                     </div>
                 </div>
-
             </form>
         </div>
 
