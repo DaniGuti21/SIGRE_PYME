@@ -3,28 +3,19 @@
 }
 
 <div class="pagina-contenido">
-    <div class="card shadow-sm p-5 text-center">
-        <h2 class="text-success mb-4">¡Gracias por su compra!</h2>
+    <div class="card shadow-sm p-4 text-center">
+        <h2 class="mb-3">Compra realizada con éxito</h2>
+        <p class="text-secondary">Tu pedido fue registrado correctamente.</p>
 
-        <p class="mb-3">
-            Su pedido ha sido procesado correctamente.
-        </p>
-
-        <p class="mb-4">
-            Puede imprimir su factura, descargarla o cerrar sesión.
-        </p>
-
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a asp-controller="Pedido" asp-action="VerFactura" class="btn btn-primary">
-                Imprimir factura
+        <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+            <a asp-controller="Pedido" asp-action="VerFactura" class="btn btn-outline-primary">
+                Ver factura
             </a>
-
             <a asp-controller="Pedido" asp-action="DescargarFactura" class="btn btn-success">
                 Descargar factura
             </a>
-
-            <a asp-controller="Usuario" asp-action="CerrarSesion" class="btn btn-danger">
-                Cerrar sesión
+            <a asp-controller="Producto" asp-action="Index" class="btn btn-dark">
+                Volver a productos
             </a>
         </div>
     </div>

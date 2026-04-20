@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SIGRE_PYME.Data;
 using SIGRE_PYME.Filters;
+using SIGRE_PYME.Helpers;
 using SIGRE_PYME.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 
 namespace SIGRE_PYME.Controllers
 {
     [SesionActiva]
+    [AutorizarRoles(RolesSistema.Cliente)]
     public class PedidoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -29,7 +28,8 @@ namespace SIGRE_PYME.Controllers
                 return new List<CarritoItem>();
             }
 
-            return JsonSerializer.Deserialize<List<CarritoItem>>(carritoJson);
+            var carrito = JsonSerializer.Deserialize<List<CarritoItem>>(carritoJson);
+            return carrito ?? new List<CarritoItem>();
         }
 
         private void GuardarCarrito(List<CarritoItem> carrito)
@@ -39,6 +39,7 @@ namespace SIGRE_PYME.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AgregarAlCarrito(int productoId)
         {
             var producto = _context.Productos.Find(productoId);
@@ -67,17 +68,20 @@ namespace SIGRE_PYME.Controllers
             }
             else
             {
-                CarritoItem nuevo = new CarritoItem();
-                nuevo.ProductoId = producto.ProductoId;
-                nuevo.Nombre = producto.Nombre;
-                nuevo.ImagenUrl = producto.ImagenUrl;
-                nuevo.Precio = producto.Precio;
-                nuevo.Cantidad = 1;
+                var nuevo = new CarritoItem
+                {
+                    ProductoId = producto.ProductoId,
+                    Nombre = producto.Nombre,
+                    ImagenUrl = producto.ImagenUrl,
+                    Precio = producto.Precio,
+                    Cantidad = 1
+                };
 
                 carrito.Add(nuevo);
             }
 
             GuardarCarrito(carrito);
+            TempData["Mensaje"] = "Producto agregado al carrito.";
 
             return RedirectToAction("Carrito");
         }
@@ -89,6 +93,7 @@ namespace SIGRE_PYME.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ActualizarCantidad(int productoId, int cantidad)
         {
             var carrito = ObtenerCarrito();
@@ -111,11 +116,11 @@ namespace SIGRE_PYME.Controllers
             }
 
             GuardarCarrito(carrito);
-
             return RedirectToAction("Carrito");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult QuitarDelCarrito(int productoId)
         {
             var carrito = ObtenerCarrito();
@@ -127,11 +132,11 @@ namespace SIGRE_PYME.Controllers
             }
 
             GuardarCarrito(carrito);
-
             return RedirectToAction("Carrito");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult ConfirmarPedido()
         {
             var carrito = ObtenerCarrito();
@@ -149,7 +154,7 @@ namespace SIGRE_PYME.Controllers
                 return RedirectToAction("Login", "Usuario");
             }
 
-            int usuarioId = int.Parse(usuarioIdTexto);
+            var usuarioId = int.Parse(usuarioIdTexto);
 
             foreach (var item in carrito)
             {
@@ -174,19 +179,21 @@ namespace SIGRE_PYME.Controllers
 
                 foreach (var item in carrito)
                 {
-                    total = total + (item.Precio * item.Cantidad);
+                    total += item.Precio * item.Cantidad;
                 }
 
-                Pedido pedido = new Pedido();
-                pedido.UsuarioId = usuarioId;
-                pedido.Fecha = DateTime.Now;
-                pedido.Total = total;
-                pedido.Estado = "Confirmado";
+                var pedido = new Pedido
+                {
+                    UsuarioId = usuarioId,
+                    Fecha = DateTime.Now,
+                    Total = total,
+                    Estado = "Confirmado"
+                };
 
                 _context.Pedidos.Add(pedido);
                 _context.SaveChanges();
 
-                StringBuilder factura = new StringBuilder();
+                var factura = new StringBuilder();
                 factura.AppendLine("FACTURA");
                 factura.AppendLine("Pedido: " + pedido.PedidoId);
                 factura.AppendLine("Fecha: " + pedido.Fecha);
@@ -195,24 +202,29 @@ namespace SIGRE_PYME.Controllers
                 foreach (var item in carrito)
                 {
                     var producto = _context.Productos.Find(item.ProductoId);
+                    if (producto == null) continue;
 
-                    PedidoDetalle detalle = new PedidoDetalle();
-                    detalle.PedidoId = pedido.PedidoId;
-                    detalle.ProductoId = item.ProductoId;
-                    detalle.Cantidad = item.Cantidad;
-                    detalle.PrecioUnitario = item.Precio;
-                    detalle.Subtotal = item.Precio * item.Cantidad;
+                    var detalle = new PedidoDetalle
+                    {
+                        PedidoId = pedido.PedidoId,
+                        ProductoId = item.ProductoId,
+                        Cantidad = item.Cantidad,
+                        PrecioUnitario = item.Precio,
+                        Subtotal = item.Precio * item.Cantidad
+                    };
 
                     _context.PedidoDetalles.Add(detalle);
 
-                    producto.StockActual = producto.StockActual - item.Cantidad;
+                    producto.StockActual -= item.Cantidad;
 
-                    MovimientoInventario movimiento = new MovimientoInventario();
-                    movimiento.ProductoId = item.ProductoId;
-                    movimiento.UsuarioId = usuarioId;
-                    movimiento.TipoMovimiento = "Salida";
-                    movimiento.Cantidad = item.Cantidad;
-                    movimiento.Fecha = DateTime.Now;
+                    var movimiento = new MovimientoInventario
+                    {
+                        ProductoId = item.ProductoId,
+                        UsuarioId = usuarioId,
+                        TipoMovimiento = "Salida",
+                        Cantidad = item.Cantidad,
+                        Fecha = DateTime.Now
+                    };
 
                     _context.MovimientosInventario.Add(movimiento);
 
@@ -230,7 +242,6 @@ namespace SIGRE_PYME.Controllers
 
                 HttpContext.Session.SetString("FacturaTexto", factura.ToString());
                 HttpContext.Session.SetString("FacturaNombre", "Factura_Pedido_" + pedido.PedidoId + ".txt");
-
                 HttpContext.Session.Remove("Carrito");
 
                 return RedirectToAction("CompraExitosa");
@@ -259,19 +270,24 @@ namespace SIGRE_PYME.Controllers
             ViewBag.Factura = facturaTexto;
             return View();
         }
-
-        public IActionResult DescargarFactura()
+    
+    public IActionResult DescargarFactura()
         {
             var facturaTexto = HttpContext.Session.GetString("FacturaTexto");
             var facturaNombre = HttpContext.Session.GetString("FacturaNombre");
 
-            if (string.IsNullOrEmpty(facturaTexto) || string.IsNullOrEmpty(facturaNombre))
+            if (string.IsNullOrEmpty(facturaTexto))
             {
+                TempData["Error"] = "No hay factura disponible para descargar.";
                 return RedirectToAction("Carrito");
             }
 
-            byte[] bytes = Encoding.UTF8.GetBytes(facturaTexto);
+            if (string.IsNullOrEmpty(facturaNombre))
+            {
+                facturaNombre = "Factura.txt";
+            }
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(facturaTexto);
             return File(bytes, "text/plain", facturaNombre);
-        }
+        }}
     }
-}

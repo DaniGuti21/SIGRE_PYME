@@ -1,49 +1,56 @@
 ﻿@model SIGRE_PYME.Models.ContactoMensaje
-
 @{
     ViewData["Title"] = "Contacto";
 }
-
 <div class="pagina-contenido">
-    <div class="contacto-simple">
-        <h2>Contáctanos</h2>
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm p-4 tarjeta-formulario">
+                <h2 class="mb-3">Contáctanos</h2>
+                <p class="text-secondary">Envíanos tu consulta y te responderemos lo antes posible.</p>
 
-        @if (ViewBag.Mensaje != null)
-        {
-            <div class="alert alert-success">
-                @ViewBag.Mensaje
+                @if (TempData["Mensaje"] != null)
+                {
+                    <div class="alert alert-success">@TempData["Mensaje"]</div>
+                }
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <form asp-action="Contacto" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="NombreCompleto" class="form-label"></label>
+                            <input asp-for="NombreCompleto" class="form-control" />
+                            <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Telefono" class="form-label"></label>
+                            <input asp-for="Telefono" class="form-control" />
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="CorreoElectronico" class="form-label"></label>
+                            <input asp-for="CorreoElectronico" class="form-control" />
+                            <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Mensaje" class="form-label"></label>
+                            <textarea asp-for="Mensaje" rows="5" class="form-control"></textarea>
+                            <span asp-validation-for="Mensaje" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                        <a asp-controller="Producto" asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                    </div>
+                </form>
             </div>
-        }
-
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert alert-danger">
-                @ViewBag.Error
-            </div>
-        }
-
-        <form asp-action="Contacto" method="post">
-            <div class="mb-3">
-                <label asp-for="NombreCompleto" class="form-label">Nombre completo</label>
-                <input asp-for="NombreCompleto" class="form-control" placeholder="Escriba su nombre" />
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Telefono" class="form-label">Teléfono</label>
-                <input asp-for="Telefono" class="form-control" placeholder="Escriba su teléfono" />
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="CorreoElectronico" class="form-label">Correo</label>
-                <input asp-for="CorreoElectronico" class="form-control" placeholder="Escriba su correo" />
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Mensaje" class="form-label">Mensaje</label>
-                <textarea asp-for="Mensaje" class="form-control" rows="4" placeholder="Escriba su mensaje"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-enviar-simple">Enviar</button>
-        </form>
+        </div>
     </div>
 </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

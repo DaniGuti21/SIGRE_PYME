@@ -1,34 +1,22 @@
 ﻿@model SIGRE_PYME.Models.Producto
-
 @{
     ViewData["Title"] = "Eliminar producto";
 }
-
-<div class="container mt-4">
-    <h2>Eliminar producto</h2>
-
-    <div class="alert alert-warning">
-        ¿Está seguro que desea eliminar este producto?
+<div class="pagina-contenido">
+    <div class="card shadow-sm p-4 tarjeta-formulario">
+        <h2>Eliminar producto</h2>
+        <p>¿Seguro que deseas eliminar este producto?</p>
+        <ul class="list-group mb-4">
+            <li class="list-group-item"><strong>SKU:</strong> @Model.SKU</li>
+            <li class="list-group-item"><strong>Nombre:</strong> @Model.Nombre</li>
+            <li class="list-group-item"><strong>Categoría:</strong> @Model.Categoria</li>
+            <li class="list-group-item"><strong>Precio:</strong> ₡@Model.Precio.ToString("0.00")</li>
+        </ul>
+        <form asp-action="DeleteConfirmed" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productoId" value="@Model.ProductoId" />
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
     </div>
-
-    <div class="card p-3 mb-3">
-        <p><strong>SKU:</strong> @Model.SKU</p>
-        <p><strong>Nombre:</strong> @Model.Nombre</p>
-        <p><strong>Categoría:</strong> @Model.Categoria</p>
-        <p><strong>Precio:</strong> @Model.Precio.ToString("0.00")</p>
-        <p><strong>Stock:</strong> @Model.StockActual</p>
-
-        @if (!string.IsNullOrEmpty(Model.ImagenUrl))
-        {
-            <div class="mt-2">
-                <img src="~/img/productos/@Model.ImagenUrl" width="100" height="100" style="object-fit:cover; border-radius:8px;" />
-            </div>
-        }
-    </div>
-
-    <form asp-action="DeleteConfirmed" method="post">
-        <input type="hidden" name="ProductoId" value="@Model.ProductoId" />
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </form>
 </div>

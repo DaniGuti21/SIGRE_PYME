@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SIGRE_PYME.Data;
-using SIGRE_PYME.Models;
 using SIGRE_PYME.Filters;
-using System.Linq;
+using SIGRE_PYME.Helpers;
+using SIGRE_PYME.Models;
 
 namespace SIGRE_PYME.Controllers
 {
     [SesionActiva]
-    [SoloAdmin]
+    [AutorizarRoles(RolesSistema.Admin, RolesSistema.Gerente, RolesSistema.Vendedor)]
     public class ClienteController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,26 +19,27 @@ namespace SIGRE_PYME.Controllers
 
         public IActionResult Index()
         {
-            var clientes = _context.Clientes.ToList();
-            return View(clientes);
+            return View(_context.Clientes.OrderBy(c => c.Nombre).ToList());
         }
 
         public IActionResult Create()
         {
-            return View();
+            return View(new Cliente());
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Cliente cliente)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Clientes.Add(cliente);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
+                return View(cliente);
             }
 
-            return View(cliente);
+            _context.Clientes.Add(cliente);
+            _context.SaveChanges();
+            TempData["Mensaje"] = "Cliente registrado correctamente.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

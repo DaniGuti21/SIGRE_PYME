@@ -2,7 +2,6 @@
 using SIGRE_PYME.Data;
 using SIGRE_PYME.Filters;
 using SIGRE_PYME.Models;
-using System;
 
 namespace SIGRE_PYME.Controllers
 {
@@ -28,26 +27,26 @@ namespace SIGRE_PYME.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Contacto(ContactoMensaje contacto)
         {
-            if (string.IsNullOrWhiteSpace(contacto.NombreCompleto) ||
-                string.IsNullOrWhiteSpace(contacto.Telefono) ||
-                string.IsNullOrWhiteSpace(contacto.CorreoElectronico) ||
-                string.IsNullOrWhiteSpace(contacto.Mensaje))
+            if (!ModelState.IsValid)
             {
-                ViewBag.Error = "Debe completar todos los campos.";
+                ViewBag.Error = "Complete correctamente todos los campos del formulario.";
                 return View(contacto);
             }
 
+            contacto.NombreCompleto = contacto.NombreCompleto.Trim();
+            contacto.Telefono = contacto.Telefono.Trim();
+            contacto.CorreoElectronico = contacto.CorreoElectronico.Trim();
+            contacto.Mensaje = contacto.Mensaje.Trim();
             contacto.FechaEnvio = DateTime.Now;
 
             _context.ContactoMensajes.Add(contacto);
             _context.SaveChanges();
 
-            ViewBag.Mensaje = "Mensaje enviado correctamente.";
-            ModelState.Clear();
-
-            return View(new ContactoMensaje());
+            TempData["Mensaje"] = "Mensaje enviado correctamente.";
+            return RedirectToAction(nameof(Contacto));
         }
     }
 }

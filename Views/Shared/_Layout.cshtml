@@ -1,36 +1,34 @@
 ﻿@using Microsoft.AspNetCore.Http
-
+@using SIGRE_PYME.Helpers
 @{
     var usuarioId = Context.Session.GetString("UsuarioId");
     var nombreUsuario = Context.Session.GetString("NombreUsuario");
-    var esAdmin = Context.Session.GetString("EsAdmin") == "true";
+    var rol = Context.Session.GetString("Rol") ?? "";
     var estaLogueado = !string.IsNullOrEmpty(usuarioId);
+    var esAdminOGerente = rol == RolesSistema.Admin || rol == RolesSistema.Gerente;
+    var puedeInventario = rol == RolesSistema.Admin || rol == RolesSistema.Almacenista || rol == RolesSistema.Gerente;
+    var puedeClientes = rol == RolesSistema.Admin || rol == RolesSistema.Gerente || rol == RolesSistema.Vendedor;
 }
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SIGRE_PYME</title>
-
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="fondo-general">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark barra-superior shadow-sm">
             <div class="container">
-                <a class="navbar-brand fw-bold" asp-controller="Usuario" asp-action="Login">
-                    SIGRE_PYME
-                </a>
-
+                <a class="navbar-brand fw-bold" asp-controller="Producto" asp-action="Index">SIGRE_PYME</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse" id="menuPrincipal">
-                    <div class="navbar-nav ms-auto align-items-lg-center">
+                    <div class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
                         @if (!estaLogueado)
                         {
                             <a class="nav-link text-white px-3" asp-controller="Usuario" asp-action="Login">Login</a>
@@ -39,23 +37,28 @@
                         else
                         {
                             <a class="nav-link text-white px-3" asp-controller="Producto" asp-action="Index">Productos</a>
-                            <a class="nav-link text-white px-3" asp-controller="Home" asp-action="AcercaDe">Acerca de Nosotros</a>
+                            <a class="nav-link text-white px-3" asp-controller="Home" asp-action="AcercaDe">Acerca de</a>
                             <a class="nav-link text-white px-3" asp-controller="Home" asp-action="Contacto">Contacto</a>
 
-                            @if (esAdmin)
+                            @if (puedeInventario)
                             {
                                 <a class="nav-link text-white px-3" asp-controller="Inventario" asp-action="Index">Inventario</a>
+                            }
+                            @if (puedeClientes)
+                            {
                                 <a class="nav-link text-white px-3" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                            }
+                            @if (esAdminOGerente)
+                            {
                                 <a class="nav-link text-white px-3" asp-controller="Reporte" asp-action="Dashboard">Dashboard</a>
                                 <a class="nav-link text-white px-3" asp-controller="Reporte" asp-action="HistorialProducto">Reportes</a>
                             }
-                            else
+                            @if (rol == RolesSistema.Cliente)
                             {
                                 <a class="nav-link text-white px-3" asp-controller="Pedido" asp-action="Carrito">Carrito</a>
                             }
 
-                            <span class="nav-link texto-bienvenida px-3">Bienvenido, @nombreUsuario</span>
-
+                            <span class="nav-link texto-bienvenida px-3">@nombreUsuario (@rol)</span>
                             <a class="nav-link text-white px-3" asp-controller="Usuario" asp-action="CerrarSesion">Cerrar sesión</a>
                         }
                     </div>
@@ -72,7 +75,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
